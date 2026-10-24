@@ -1099,99 +1099,61 @@ class NoteSidebarApp:
         self.progress_bg.pack(side="bottom", fill="x", pady=(7, 0))
         self.progress_bar = self.progress_bg.create_rectangle(0, 0, 0, 5, fill=self.GREEN, width=0)
 
-        # 2.5 Minimalist Motivation Card
+        # 2.5 Minimalist Motivation Card (Aesthetic, Centered, Large Georgia Font)
         self.motivation_card = tk.Frame(
             self.main_col,
             bg=self.CARD_BG,
             highlightbackground=self.BORDER,
             highlightthickness=1,
-            padx=12,
-            pady=7,
+            padx=14,
+            pady=10,
+            cursor="hand2",
         )
         self.motivation_card.pack(side="top", fill="x", padx=10, pady=(2, 4))
-
-        mot_hdr = tk.Frame(self.motivation_card, bg=self.CARD_BG)
-        mot_hdr.pack(side="top", fill="x")
-
-        mot_tag = tk.Label(
-            mot_hdr,
-            text="✦ MOTIVATION",
-            bg=self.CARD_BG,
-            fg=self.SKY,
-            font=("Segoe UI", 7, "bold"),
-            cursor="hand2",
-        )
-        mot_tag.pack(side="left")
-        mot_tag.bind("<Button-1>", lambda e: self.shuffle_motivation_quote())
-
-        self.mot_toggle_btn = tk.Label(
-            mot_hdr,
-            text="▼" if self.motivation_collapsed else "▲",
-            bg=self.CARD_BG,
-            fg="#71717a",
-            padx=4,
-            font=("Segoe UI", 7),
-            cursor="hand2",
-        )
-        self.mot_toggle_btn.pack(side="right")
-        self.mot_toggle_btn.bind("<Button-1>", lambda e: self.toggle_motivation_collapse())
-
-        mot_shuffle_btn = tk.Label(
-            mot_hdr,
-            text="↻",
-            bg=self.CARD_BG,
-            fg=self.GREEN,
-            padx=5,
-            font=("Segoe UI", 8, "bold"),
-            cursor="hand2",
-        )
-        mot_shuffle_btn.pack(side="right", padx=(0, 2))
-        mot_shuffle_btn.bind("<Button-1>", lambda e: self.shuffle_motivation_quote())
-
-        self.mot_note_btn = tk.Label(
-            mot_hdr,
-            text="+ Note",
-            bg="#141419",
-            fg="#a1a1aa",
-            padx=6,
-            pady=1,
-            font=("Segoe UI", 7, "bold"),
-            cursor="hand2",
-        )
-        self.mot_note_btn.pack(side="right", padx=(0, 6))
-        self.mot_note_btn.bind("<Button-1>", lambda e: self.insert_motivation_to_notes())
-        self.mot_note_btn.bind("<Enter>", lambda e: self.mot_note_btn.config(bg="#1f2937", fg="#ffffff"))
-        self.mot_note_btn.bind("<Leave>", lambda e: self.mot_note_btn.config(bg="#141419", fg="#a1a1aa"))
-
-        self.mot_body = tk.Frame(self.motivation_card, bg=self.CARD_BG)
-        if not self.motivation_collapsed:
-            self.mot_body.pack(side="top", fill="x", pady=(4, 0))
+        self.motivation_card.bind("<Button-1>", lambda e: self.shuffle_motivation_quote())
 
         self.quote_lbl = tk.Label(
-            self.mot_body,
+            self.motivation_card,
             text="",
             bg=self.CARD_BG,
-            fg="#e4e4e7",
-            font=("Segoe UI", 9, "italic"),
-            justify="left",
-            anchor="w",
+            fg="#ffffff",
+            font=("Georgia", 13, "italic"),
+            justify="center",
+            anchor="center",
             cursor="hand2",
             wraplength=max(240, self.width - 56),
         )
-        self.quote_lbl.pack(side="top", fill="x")
+        self.quote_lbl.pack(side="top", fill="x", pady=(2, 6))
         self.quote_lbl.bind("<Button-1>", lambda e: self.shuffle_motivation_quote())
 
+        mot_bot = tk.Frame(self.motivation_card, bg=self.CARD_BG, cursor="hand2")
+        mot_bot.pack(side="top", fill="x")
+        mot_bot.bind("<Button-1>", lambda e: self.shuffle_motivation_quote())
+
+        self.mot_note_btn = tk.Label(
+            mot_bot,
+            text="+ Note",
+            bg=self.CARD_BG,
+            fg="#52525b",
+            font=("Segoe UI", 7, "bold"),
+            cursor="hand2",
+        )
+        self.mot_note_btn.pack(side="left", padx=(2, 0))
+        self.mot_note_btn.bind("<Button-1>", lambda e: self.insert_motivation_to_notes())
+        self.mot_note_btn.bind("<Enter>", lambda e: self.mot_note_btn.config(fg=self.GREEN))
+        self.mot_note_btn.bind("<Leave>", lambda e: self.mot_note_btn.config(fg="#52525b"))
+
         self.author_lbl = tk.Label(
-            self.mot_body,
+            mot_bot,
             text="",
             bg=self.CARD_BG,
-            fg="#71717a",
-            font=("Segoe UI", 7, "bold"),
+            fg="#a1a1aa",
+            font=("Georgia", 9, "italic"),
             justify="right",
             anchor="e",
             cursor="hand2",
         )
-        self.author_lbl.pack(side="top", fill="x", pady=(2, 0))
+        self.author_lbl.pack(side="right", padx=(0, 6))
         self.author_lbl.bind("<Button-1>", lambda e: self.shuffle_motivation_quote())
 
         # 3. Compact 2-Column Live Window Grid
@@ -1447,20 +1409,12 @@ class NoteSidebarApp:
         q = self._current_quote.get("quote", "")
         a = self._current_quote.get("author", "")
         if hasattr(self, "quote_lbl"):
-            self.quote_lbl.config(text=f'"{q}"')
+            self.quote_lbl.config(text=f'“{q}”')
         if hasattr(self, "author_lbl"):
             self.author_lbl.config(text=f"— {a}")
 
     def toggle_motivation_collapse(self):
-        self.motivation_collapsed = not self.motivation_collapsed
-        self.cfg["motivation_collapsed"] = self.motivation_collapsed
-        save_cfg(self.cfg)
-        if self.motivation_collapsed:
-            self.mot_body.pack_forget()
-            self.mot_toggle_btn.config(text="▼")
-        else:
-            self.mot_body.pack(side="top", fill="x", pady=(4, 0))
-            self.mot_toggle_btn.config(text="▲")
+        pass
 
     def insert_motivation_to_notes(self):
         if not hasattr(self, "_current_quote") or not self._current_quote:
@@ -1478,8 +1432,8 @@ class NoteSidebarApp:
         self.editor.see("insert")
         self.save_notes(instant=True)
         if hasattr(self, "mot_note_btn"):
-            self.mot_note_btn.config(text="✓ Added!", fg=self.GREEN)
-            self.root.after(1200, lambda: self.mot_note_btn.config(text="+ Note", fg="#a1a1aa"))
+            self.mot_note_btn.config(text="✓ Added", fg=self.GREEN)
+            self.root.after(1200, lambda: self.mot_note_btn.config(text="+ Note", fg="#52525b"))
 
     def _update_motivation_wraplength(self):
         if hasattr(self, "quote_lbl"):
