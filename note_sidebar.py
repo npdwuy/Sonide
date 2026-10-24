@@ -862,7 +862,6 @@ class NoteSidebarApp:
         self._pill_drag_offset_y = 0
 
         # Motivation Quotes state
-        self.motivation_collapsed = bool(cfg.get("motivation_collapsed", False))
         self._quotes_data = self._load_motivation_quotes()
         self._current_quote = None
         self._last_quote_idx = -1
@@ -1104,8 +1103,8 @@ class NoteSidebarApp:
             bg=self.CARD_BG,
             highlightbackground=self.BORDER,
             highlightthickness=1,
-            padx=14,
-            pady=10,
+            padx=16,
+            pady=12,
             cursor="hand2",
         )
         self.motivation_card.pack(side="top", fill="x", padx=10, pady=(2, 4))
@@ -1125,25 +1124,8 @@ class NoteSidebarApp:
         self.quote_lbl.pack(side="top", fill="x", pady=(2, 6))
         self.quote_lbl.bind("<Button-1>", lambda e: self.shuffle_motivation_quote())
 
-        mot_bot = tk.Frame(self.motivation_card, bg=self.CARD_BG, cursor="hand2")
-        mot_bot.pack(side="top", fill="x")
-        mot_bot.bind("<Button-1>", lambda e: self.shuffle_motivation_quote())
-
-        self.mot_note_btn = tk.Label(
-            mot_bot,
-            text="+ Note",
-            bg=self.CARD_BG,
-            fg="#52525b",
-            font=("Segoe UI", 7, "bold"),
-            cursor="hand2",
-        )
-        self.mot_note_btn.pack(side="left", padx=(2, 0))
-        self.mot_note_btn.bind("<Button-1>", lambda e: self.insert_motivation_to_notes())
-        self.mot_note_btn.bind("<Enter>", lambda e: self.mot_note_btn.config(fg=self.GREEN))
-        self.mot_note_btn.bind("<Leave>", lambda e: self.mot_note_btn.config(fg="#52525b"))
-
         self.author_lbl = tk.Label(
-            mot_bot,
+            self.motivation_card,
             text="",
             bg=self.CARD_BG,
             fg="#a1a1aa",
@@ -1152,7 +1134,7 @@ class NoteSidebarApp:
             anchor="e",
             cursor="hand2",
         )
-        self.author_lbl.pack(side="right", padx=(0, 6))
+        self.author_lbl.pack(side="top", fill="x", padx=(0, 6), pady=(0, 2))
         self.author_lbl.bind("<Button-1>", lambda e: self.shuffle_motivation_quote())
 
         # 3. Compact 2-Column Live Window Grid
@@ -1411,28 +1393,6 @@ class NoteSidebarApp:
             self.quote_lbl.config(text=f'“{q}”')
         if hasattr(self, "author_lbl"):
             self.author_lbl.config(text=f"— {a}")
-
-    def toggle_motivation_collapse(self):
-        pass
-
-    def insert_motivation_to_notes(self):
-        if not hasattr(self, "_current_quote") or not self._current_quote:
-            return
-        q = self._current_quote.get("quote", "")
-        a = self._current_quote.get("author", "")
-        if not q:
-            return
-        cursor = self.editor.index("insert")
-        line_num, col = cursor.split(".")
-        line_text = self.editor.get(f"{line_num}.0", f"{line_num}.end").replace("\u200b", "").strip()
-        prefix = "\n\n" if line_text else ""
-        txt = f'{prefix}> "{q}"\n> — *{a}*\n\n'
-        self.editor.insert("insert", txt, ("quote_bar", "quote_line"))
-        self.editor.see("insert")
-        self.save_notes(instant=True)
-        if hasattr(self, "mot_note_btn"):
-            self.mot_note_btn.config(text="✓ Added", fg=self.GREEN)
-            self.root.after(1200, lambda: self.mot_note_btn.config(text="+ Note", fg="#52525b"))
 
     def _update_motivation_wraplength(self):
         if hasattr(self, "quote_lbl"):
