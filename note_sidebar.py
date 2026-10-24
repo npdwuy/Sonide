@@ -2855,7 +2855,9 @@ def main():
     if args.monitor:
         cfg["monitor"] = args.monitor
         save_cfg(cfg)
-    elif is_interactive and not args.float:
+    elif args.choose:
+        choose_monitor_cli(cfg)
+    elif not cfg.get("monitor") and is_interactive and not args.float:
         choose_monitor_cli(cfg)
 
     if args.width:
