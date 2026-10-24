@@ -180,6 +180,8 @@ kernel32.TerminateProcess.argtypes = [wintypes.HANDLE, wintypes.UINT]
 kernel32.TerminateProcess.restype = wintypes.BOOL
 kernel32.WaitForSingleObject.argtypes = [wintypes.HANDLE, wintypes.DWORD]
 kernel32.WaitForSingleObject.restype = wintypes.DWORD
+kernel32.QueryFullProcessImageNameW.argtypes = [wintypes.HANDLE, wintypes.DWORD, wintypes.LPWSTR, ctypes.POINTER(wintypes.DWORD)]
+kernel32.QueryFullProcessImageNameW.restype = wintypes.BOOL
 
 dwmapi.DwmRegisterThumbnail.argtypes = [HWND, HWND, ctypes.POINTER(wintypes.HANDLE)]
 dwmapi.DwmRegisterThumbnail.restype = ctypes.c_long
@@ -291,26 +293,10 @@ def stop_running_instance():
     if old_pid == os.getpid():
         return False
 
-    # Verify old_hwnd still exists and belongs to old_pid to prevent PID-reuse termination of unrelated apps
-    if not old_hwnd or not user32.IsWindow(old_hwnd):
-        try:
-            os.remove(PID_FILE)
-        except Exception:
-            pass
-        return False
-
-    win_pid = wintypes.DWORD(0)
-    user32.GetWindowThreadProcessId(old_hwnd, ctypes.byref(win_pid))
-    if win_pid.value != old_pid:
-        try:
-            os.remove(PID_FILE)
-        except Exception:
-            pass
-        return False
-
+    PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
     PROCESS_TERMINATE = 0x0001
     SYNCHRONIZE = 0x00100000
-    h_proc = kernel32.OpenProcess(PROCESS_TERMINATE | SYNCHRONIZE, False, old_pid)
+    h_proc = kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_TERMINATE | SYNCHRONIZE, False, old_pid)
     if not h_proc:
         try:
             os.remove(PID_FILE)
@@ -318,13 +304,26 @@ def stop_running_instance():
             pass
         return False
 
+    buf = ctypes.create_unicode_buffer(1024)
+    size = wintypes.DWORD(1024)
+    if kernel32.QueryFullProcessImageNameW(h_proc, 0, buf, ctypes.byref(size)):
+        img_name = buf.value.lower()
+        if not any(img_name.endswith(x) for x in ("python.exe", "pythonw.exe", "py.exe", "pyw.exe")):
+            kernel32.CloseHandle(h_proc)
+            try:
+                os.remove(PID_FILE)
+            except Exception:
+                pass
+            return False
+
     try:
         try:
             atomic_write_text(PID_FILE, f"STOP:{old_pid}")
         except Exception:
             pass
-        user32.PostMessageW(old_hwnd, WM_CLOSE, 0, 0)
-        res = kernel32.WaitForSingleObject(h_proc, 2000)
+        if old_hwnd and user32.IsWindow(old_hwnd):
+            user32.PostMessageW(old_hwnd, WM_CLOSE, 0, 0)
+        res = kernel32.WaitForSingleObject(h_proc, 1500)
         if res != 0:
             kernel32.TerminateProcess(h_proc, 0)
             kernel32.WaitForSingleObject(h_proc, 1000)
