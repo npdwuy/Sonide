@@ -1,5 +1,4 @@
 @echo off
 cd /d "%~dp0"
-echo Dang tat Note Sidebar...
-python note_sidebar.py --stop
-pause
+echo Stopping Sonide...
+py note_sidebar.py --stop

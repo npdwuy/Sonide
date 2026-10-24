@@ -1,18 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Obsidian-Style Multitasking Note Sidebar (WYSIWYG Markdown + Hero Timer + 2-Col Live Window Grid)
-=================================================================================================
-- Nen den tuyet doi (#000000), UI toi gian chuan Linear / Raycast.
-- Checkbox bo goc mau xanh la (#22c55e) khu rang cua (2x2 supersampled SDF PhotoImage).
-- Ho tro Ctrl + MouseWheel de Zoom to/nho toan bo Note muot ma (8pt -> 24pt).
-- Hero Focus Timer (25pt bold) noi bat, doi mau theo thoi gian con lai + thanh tien do 5px.
-- Live Window Grid (2 cua so / hang):
-    + Keo tha cua so vao Sidebar HOAC bam Alt+W de ghim & thu nho nhanh.
-    + Click vao o ghim -> Toggle giua [Mo ra VI TRI BAN DAU] va [Thu nho lai vao Sidebar].
-    + Khong bi mat khoi o ghim khi click; chi xoa khoi ghim khi bam nut [×].
-    + Chong tat render 100% khi mo nhieu tab: GDI COMPLEXREGION + Staggered Anti-Occlusion.
-- Thu gon Sidebar (Collapse): Nut [Thu gọn »] hoac phim tat Alt+Z thu thanh nut noi [◀ MỞ NOTES]
-  o goc tren phai, tra lai 100% man hinh lam viec!
+Sonide — Windows Multitasking Note Sidebar (WYSIWYG Markdown + Hero Timer + 2-Col Live Window Grid)
+===================================================================================================
 """
 import argparse
 import atexit
@@ -430,7 +419,7 @@ def choose_monitor_cli(cfg):
                     if m["rect"] == (cur_mon["rect"] if cur_mon else None)), 2)
 
     print("========================================")
-    print("   CHON MONITOR CHO NOTE SIDEBAR")
+    print("   SELECT MONITOR FOR SONIDE")
     print("========================================")
     for i, m in enumerate(mons, 1):
         l, t, r, b = m["rect"]
@@ -926,7 +915,7 @@ class NoteSidebarApp:
         )
         self.mini_pill_lbl = tk.Label(
             self.mini_pill,
-            text="◀ NOTES",
+            text="◀ SONIDE",
             bg="#09090d",
             fg=self.GREEN,
             font=("Segoe UI", 8, "bold"),
@@ -962,7 +951,7 @@ class NoteSidebarApp:
         tk.Label(self.bar, text="  ●", bg=self.SURFACE, fg=self.GREEN,
                  font=("Segoe UI", 8, "bold")).pack(side="left")
 
-        self.title_lbl = tk.Label(self.bar, text=" NOTES", bg=self.SURFACE, fg="#e4e4e7",
+        self.title_lbl = tk.Label(self.bar, text=" SONIDE", bg=self.SURFACE, fg="#e4e4e7",
                                   font=("Segoe UI", 8, "bold"), cursor="hand2")
         self.title_lbl.pack(side="left")
         self.title_lbl.bind("<Button-1>", self.start_drag)
@@ -2058,7 +2047,7 @@ class NoteSidebarApp:
 
         mons = list_monitors()
         idx = next((i for i, m in enumerate(mons, 1) if m["rect"] == self.mon_rect), 0)
-        self.title_lbl.config(text=f" NOTES · M{idx}")
+        self.title_lbl.config(text=f" SONIDE · M{idx}")
 
     def float_window(self):
         self.mode = "floating"
@@ -2089,7 +2078,7 @@ class NoteSidebarApp:
         user32.SetWindowPos(self.hwnd, HWND_TOPMOST, x, y, w, h,
                             SWP_NOACTIVATE | SWP_FRAMECHANGED)
         self.root.update_idletasks()
-        self.title_lbl.config(text=" NOTES · FLOAT")
+        self.title_lbl.config(text=" SONIDE · FLOAT")
         self._refresh_dwm_thumbnails(force=True)
 
     def toggle_mode(self):
@@ -2674,22 +2663,22 @@ class NoteSidebarApp:
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Obsidian-Style Multitasking Note Sidebar")
-    ap.add_argument("--list", action="store_true", help="liet ke monitor roi thoat")
-    ap.add_argument("--choose", action="store_true", help="hien menu chon monitor trong console")
-    ap.add_argument("--stop", action="store_true", help="dung ung dung dang chay roi thoat")
-    ap.add_argument("--monitor", help="so monitor (1, 2, ...) hoac primary")
-    ap.add_argument("--width", type=int, help="do rong pixel")
-    ap.add_argument("--float", action="store_true", help="khoi dong o che do cua so noi")
+    ap = argparse.ArgumentParser(description="Sonide — Windows Multitasking Note Sidebar")
+    ap.add_argument("--list", action="store_true", help="list monitors and exit")
+    ap.add_argument("--choose", action="store_true", help="interactive monitor selection")
+    ap.add_argument("--stop", action="store_true", help="stop running instance and exit")
+    ap.add_argument("--monitor", help="monitor index (1, 2, ...) or primary")
+    ap.add_argument("--width", type=int, help="sidebar width in pixels")
+    ap.add_argument("--float", action="store_true", help="start in floating mode")
     args = ap.parse_args()
 
     enable_dpi_awareness()
 
     if args.stop:
         if stop_running_instance():
-            print("Da tat Note Sidebar va giai phong vung man hinh.")
+            print("Stopped Sonide and released desktop work area.")
         else:
-            print("Khong co tien trinh Note Sidebar nao dang chay.")
+            print("No running Sonide instance found.")
         return
 
     if args.list:
