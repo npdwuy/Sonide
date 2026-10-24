@@ -9,6 +9,7 @@ import ctypes
 import json
 import math
 import os
+import random
 import re
 import signal
 import sys
@@ -861,6 +862,12 @@ class NoteSidebarApp:
         self._pill_dragging = False
         self._pill_drag_offset_y = 0
 
+        # Motivation Quotes state
+        self.motivation_collapsed = bool(cfg.get("motivation_collapsed", False))
+        self._quotes_data = self._load_motivation_quotes()
+        self._current_quote = None
+        self._last_quote_idx = -1
+
         self.img_todo, self.img_done = build_rounded_checkbox_images()
         self._init_fonts()
         self.build_ui()
@@ -877,6 +884,7 @@ class NoteSidebarApp:
         self.abd.uCallbackMessage = WM_APPBAR
 
         self.load_notes()
+        self.shuffle_motivation_quote()
 
         if self.mode == "floating":
             self.float_window()
@@ -1091,6 +1099,101 @@ class NoteSidebarApp:
         self.progress_bg.pack(side="bottom", fill="x", pady=(7, 0))
         self.progress_bar = self.progress_bg.create_rectangle(0, 0, 0, 5, fill=self.GREEN, width=0)
 
+        # 2.5 Minimalist Motivation Card
+        self.motivation_card = tk.Frame(
+            self.main_col,
+            bg=self.CARD_BG,
+            highlightbackground=self.BORDER,
+            highlightthickness=1,
+            padx=12,
+            pady=7,
+        )
+        self.motivation_card.pack(side="top", fill="x", padx=10, pady=(2, 4))
+
+        mot_hdr = tk.Frame(self.motivation_card, bg=self.CARD_BG)
+        mot_hdr.pack(side="top", fill="x")
+
+        mot_tag = tk.Label(
+            mot_hdr,
+            text="✦ MOTIVATION",
+            bg=self.CARD_BG,
+            fg=self.SKY,
+            font=("Segoe UI", 7, "bold"),
+            cursor="hand2",
+        )
+        mot_tag.pack(side="left")
+        mot_tag.bind("<Button-1>", lambda e: self.shuffle_motivation_quote())
+
+        self.mot_toggle_btn = tk.Label(
+            mot_hdr,
+            text="▼" if self.motivation_collapsed else "▲",
+            bg=self.CARD_BG,
+            fg="#71717a",
+            padx=4,
+            font=("Segoe UI", 7),
+            cursor="hand2",
+        )
+        self.mot_toggle_btn.pack(side="right")
+        self.mot_toggle_btn.bind("<Button-1>", lambda e: self.toggle_motivation_collapse())
+
+        mot_shuffle_btn = tk.Label(
+            mot_hdr,
+            text="↻",
+            bg=self.CARD_BG,
+            fg=self.GREEN,
+            padx=5,
+            font=("Segoe UI", 8, "bold"),
+            cursor="hand2",
+        )
+        mot_shuffle_btn.pack(side="right", padx=(0, 2))
+        mot_shuffle_btn.bind("<Button-1>", lambda e: self.shuffle_motivation_quote())
+
+        self.mot_note_btn = tk.Label(
+            mot_hdr,
+            text="+ Note",
+            bg="#141419",
+            fg="#a1a1aa",
+            padx=6,
+            pady=1,
+            font=("Segoe UI", 7, "bold"),
+            cursor="hand2",
+        )
+        self.mot_note_btn.pack(side="right", padx=(0, 6))
+        self.mot_note_btn.bind("<Button-1>", lambda e: self.insert_motivation_to_notes())
+        self.mot_note_btn.bind("<Enter>", lambda e: self.mot_note_btn.config(bg="#1f2937", fg="#ffffff"))
+        self.mot_note_btn.bind("<Leave>", lambda e: self.mot_note_btn.config(bg="#141419", fg="#a1a1aa"))
+
+        self.mot_body = tk.Frame(self.motivation_card, bg=self.CARD_BG)
+        if not self.motivation_collapsed:
+            self.mot_body.pack(side="top", fill="x", pady=(4, 0))
+
+        self.quote_lbl = tk.Label(
+            self.mot_body,
+            text="",
+            bg=self.CARD_BG,
+            fg="#e4e4e7",
+            font=("Segoe UI", 9, "italic"),
+            justify="left",
+            anchor="w",
+            cursor="hand2",
+            wraplength=max(240, self.width - 56),
+        )
+        self.quote_lbl.pack(side="top", fill="x")
+        self.quote_lbl.bind("<Button-1>", lambda e: self.shuffle_motivation_quote())
+
+        self.author_lbl = tk.Label(
+            self.mot_body,
+            text="",
+            bg=self.CARD_BG,
+            fg="#71717a",
+            font=("Segoe UI", 7, "bold"),
+            justify="right",
+            anchor="e",
+            cursor="hand2",
+        )
+        self.author_lbl.pack(side="top", fill="x", pady=(2, 0))
+        self.author_lbl.bind("<Button-1>", lambda e: self.shuffle_motivation_quote())
+
         # 3. Compact 2-Column Live Window Grid
         self.dock_panel = tk.Frame(self.main_col, bg=self.BG, padx=10, pady=2)
         self.dock_panel.pack(side="top", fill="x")
@@ -1285,6 +1388,7 @@ class NoteSidebarApp:
             self.timer_running_stop()
             self.time_lbl.config(fg=self.RED, text="00:00!")
             self.timer_card.config(highlightbackground=self.RED)
+            self.shuffle_motivation_quote()
 
     def _update_timer_ui(self):
         rem = self.timer_remaining
@@ -1308,6 +1412,79 @@ class NoteSidebarApp:
         ratio = 0.0 if self.timer_total <= 0 else (self.timer_total - rem) / self.timer_total
         self.progress_bg.coords(self.progress_bar, 0, 0, int(w * ratio), 5)
         self.progress_bg.itemconfig(self.progress_bar, fill=col if self.timer_running else self.GREEN)
+
+    # ------------------------------------------------------------------------
+    # Minimalist Motivation Card Logic
+    # ------------------------------------------------------------------------
+    def _load_motivation_quotes(self):
+        qpath = os.path.join(HERE, "motivation_quotes.json")
+        if os.path.isfile(qpath):
+            try:
+                with open(qpath, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    if isinstance(data, list) and data:
+                        return data
+            except Exception:
+                pass
+        return [
+            {"quote": "Focus is a muscle. You build it by not giving in to distractions.", "author": "Cal Newport"},
+            {"quote": "Do one thing deeply rather than ten things superficially.", "author": "Marcus Aurelius"},
+            {"quote": "Simplicity is prerequisite for reliability.", "author": "Edsger W. Dijkstra"},
+            {"quote": "Your mind is for having ideas, not holding them.", "author": "David Allen"},
+            {"quote": "Action is the foundational key to all success.", "author": "Pablo Picasso"},
+        ]
+
+    def shuffle_motivation_quote(self):
+        if not self._quotes_data:
+            return
+        if len(self._quotes_data) == 1:
+            idx = 0
+        else:
+            candidates = [i for i in range(len(self._quotes_data)) if i != self._last_quote_idx]
+            idx = random.choice(candidates) if candidates else 0
+        self._last_quote_idx = idx
+        self._current_quote = self._quotes_data[idx]
+        q = self._current_quote.get("quote", "")
+        a = self._current_quote.get("author", "")
+        if hasattr(self, "quote_lbl"):
+            self.quote_lbl.config(text=f'"{q}"')
+        if hasattr(self, "author_lbl"):
+            self.author_lbl.config(text=f"— {a}")
+
+    def toggle_motivation_collapse(self):
+        self.motivation_collapsed = not self.motivation_collapsed
+        self.cfg["motivation_collapsed"] = self.motivation_collapsed
+        save_cfg(self.cfg)
+        if self.motivation_collapsed:
+            self.mot_body.pack_forget()
+            self.mot_toggle_btn.config(text="▼")
+        else:
+            self.mot_body.pack(side="top", fill="x", pady=(4, 0))
+            self.mot_toggle_btn.config(text="▲")
+
+    def insert_motivation_to_notes(self):
+        if not hasattr(self, "_current_quote") or not self._current_quote:
+            return
+        q = self._current_quote.get("quote", "")
+        a = self._current_quote.get("author", "")
+        if not q:
+            return
+        cursor = self.editor.index("insert")
+        line_num, col = cursor.split(".")
+        line_text = self.editor.get(f"{line_num}.0", f"{line_num}.end").replace("\u200b", "").strip()
+        prefix = "\n\n" if line_text else ""
+        txt = f'{prefix}> "{q}"\n> — *{a}*\n\n'
+        self.editor.insert("insert", txt, ("quote_bar", "quote_line"))
+        self.editor.see("insert")
+        self.save_notes(instant=True)
+        if hasattr(self, "mot_note_btn"):
+            self.mot_note_btn.config(text="✓ Added!", fg=self.GREEN)
+            self.root.after(1200, lambda: self.mot_note_btn.config(text="+ Note", fg="#a1a1aa"))
+
+    def _update_motivation_wraplength(self):
+        if hasattr(self, "quote_lbl"):
+            w = max(240, self.root.winfo_width() - 56)
+            self.quote_lbl.config(wraplength=w)
 
     # ------------------------------------------------------------------------
     # Anti-Occlusion Staggered Positioning & Persistent Live Window Dock
@@ -2017,6 +2194,7 @@ class NoteSidebarApp:
 
         self.root.update_idletasks()
         self._update_timer_ui()
+        self._update_motivation_wraplength()
         self._refresh_dwm_thumbnails(force=True)
 
     def _end_resize(self, event):

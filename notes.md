@@ -1,2 +1,0 @@
-# Dwuy today's note
-#
