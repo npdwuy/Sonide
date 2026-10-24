@@ -1548,15 +1548,18 @@ class NoteSidebarApp:
             return
         try:
             self._poll_tick_count += 1
-            if self._poll_tick_count % 12 == 0 and os.path.isfile(PID_FILE):
-                try:
-                    with open(PID_FILE, "r", encoding="utf-8") as f:
-                        sig = f.read().strip()
-                        if sig in ("STOP", f"STOP:{os.getpid()}"):
-                            self.quit()
-                            return
-                except Exception:
-                    pass
+            if self._poll_tick_count % 12 == 0:
+                if os.path.isfile(PID_FILE):
+                    try:
+                        with open(PID_FILE, "r", encoding="utf-8") as f:
+                            sig = f.read().strip()
+                            if sig in ("STOP", f"STOP:{os.getpid()}"):
+                                self.quit()
+                                return
+                    except Exception:
+                        pass
+                else:
+                    write_pid_file(self.hwnd)
 
             alt_down = bool(user32.GetAsyncKeyState(VK_MENU) & 0x8000)
 
