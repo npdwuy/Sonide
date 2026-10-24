@@ -1,10 +1,10 @@
 {
   "mode": "docked",
   "monitor": "2",
-  "width": 534,
+  "width": 574,
   "header_height": 30,
   "font_size": 14,
   "file_path": "notes.md",
-  "timer_minutes": 45,
+  "timer_minutes": 15,
   "pill_y": 211
 }

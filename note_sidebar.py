@@ -861,10 +861,11 @@ class NoteSidebarApp:
         self._pill_dragging = False
         self._pill_drag_offset_y = 0
 
-        # Motivation Quotes state
+        # Motivation Quotes state (Deck Shuffler / Anti-Cyclic Scatter)
         self._quotes_data = self._load_motivation_quotes()
         self._current_quote = None
-        self._last_quote_idx = -1
+        self._last_quote_idx = int(self.cfg.get("last_quote_idx", -1))
+        self._quote_deck = []
 
         self.img_todo, self.img_done = build_rounded_checkbox_images()
         self._init_fonts()
@@ -1377,15 +1378,38 @@ class NoteSidebarApp:
             {"quote": "Action is the foundational key to all success.", "author": "Pablo Picasso"},
         ]
 
+    def _get_next_quote_idx(self):
+        n = len(self._quotes_data)
+        if n == 0:
+            return -1
+        if n == 1:
+            return 0
+
+        # Validate current deck has valid indices
+        self._quote_deck = [i for i in self._quote_deck if isinstance(i, int) and 0 <= i < n]
+
+        # If deck is exhausted or uninitialized, generate a brand new full permutation
+        if not self._quote_deck:
+            new_deck = list(range(n))
+            random.shuffle(new_deck)
+            # Scatter boundary protection:
+            # Ensure the first quote of the new cycle does not repeat the last quote of the previous cycle
+            if len(new_deck) > 1 and new_deck[0] == self._last_quote_idx:
+                swap_target = random.randint(1, len(new_deck) - 1)
+                new_deck[0], new_deck[swap_target] = new_deck[swap_target], new_deck[0]
+            self._quote_deck = new_deck
+
+        idx = self._quote_deck.pop(0)
+        self._last_quote_idx = idx
+        self.cfg["last_quote_idx"] = idx
+        return idx
+
     def shuffle_motivation_quote(self):
         if not self._quotes_data:
             return
-        if len(self._quotes_data) == 1:
-            idx = 0
-        else:
-            candidates = [i for i in range(len(self._quotes_data)) if i != self._last_quote_idx]
-            idx = random.choice(candidates) if candidates else 0
-        self._last_quote_idx = idx
+        idx = self._get_next_quote_idx()
+        if idx < 0 or idx >= len(self._quotes_data):
+            return
         self._current_quote = self._quotes_data[idx]
         q = self._current_quote.get("quote", "")
         a = self._current_quote.get("author", "")

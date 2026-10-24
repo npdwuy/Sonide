@@ -4,47 +4,559 @@
     "author": "Cal Newport"
   },
   {
-    "quote": "Simplicity is prerequisite for reliability.",
-    "author": "Edsger W. Dijkstra"
+    "quote": "Deep work is the ability to focus without distraction on a cognitively demanding task.",
+    "author": "Cal Newport"
   },
   {
     "quote": "Do one thing deeply rather than ten things superficially.",
     "author": "Marcus Aurelius"
   },
   {
-    "quote": "Small disciplines repeated with consistency every day lead to great achievements.",
-    "author": "John C. Maxwell"
+    "quote": "The successful warrior is the average man, with laser-like focus.",
+    "author": "Bruce Lee"
+  },
+  {
+    "quote": "Deciding what not to do is as important as deciding what to do.",
+    "author": "Steve Jobs"
+  },
+  {
+    "quote": "It is not daily increase, but daily decrease: hack away the unessential.",
+    "author": "Bruce Lee"
   },
   {
     "quote": "Your mind is for having ideas, not holding them.",
     "author": "David Allen"
   },
   {
-    "quote": "Action is the foundational key to all success.",
-    "author": "Pablo Picasso"
+    "quote": "Energy flows where attention goes.",
+    "author": "Tony Robbins"
+  },
+  {
+    "quote": "Concentrate all your thoughts upon the work at hand. The sun's rays do not burn until brought to a focus.",
+    "author": "Alexander Graham Bell"
+  },
+  {
+    "quote": "Multitasking is merely the opportunity to screw up more than one thing at a time.",
+    "author": "Steve Uzzell"
+  },
+  {
+    "quote": "Where your focus goes, your energy flows and your life follows.",
+    "author": "Robin Sharma"
+  },
+  {
+    "quote": "Be like a postage stamp: stick to one thing until you get there.",
+    "author": "Josh Billings"
+  },
+  {
+    "quote": "The ability to stay focused will be the superpower of the 21st century.",
+    "author": "Cal Newport"
+  },
+  {
+    "quote": "Do less. But do it with complete, undivided attention.",
+    "author": "Marcus Aurelius"
+  },
+  {
+    "quote": "Eliminate the noise until only signal remains.",
+    "author": "Naval Ravikant"
+  },
+  {
+    "quote": "Simplicity is prerequisite for reliability.",
+    "author": "Edsger W. Dijkstra"
   },
   {
     "quote": "Make it work, make it right, make it fast.",
     "author": "Kent Beck"
   },
   {
-    "quote": "Energy flows where attention goes.",
-    "author": "Tony Robbins"
+    "quote": "Premature optimization is the root of all evil in programming.",
+    "author": "Donald Knuth"
+  },
+  {
+    "quote": "Simplicity is about subtracting the obvious and adding the meaningful.",
+    "author": "John Maeda"
+  },
+  {
+    "quote": "Talk is cheap. Show me the code.",
+    "author": "Linus Torvalds"
+  },
+  {
+    "quote": "Simple things should be simple, complex things should be possible.",
+    "author": "Alan Kay"
+  },
+  {
+    "quote": "Controlling complexity is the essence of computer programming.",
+    "author": "Brian Kernighan"
+  },
+  {
+    "quote": "Perfection is achieved not when there is nothing more to add, but when there is nothing left to take away.",
+    "author": "Antoine de Saint-Exupéry"
+  },
+  {
+    "quote": "The best code is no code at all.",
+    "author": "Jeff Atwood"
+  },
+  {
+    "quote": "Programs must be written for people to read, and only incidentally for machines to execute.",
+    "author": "Harold Abelson"
+  },
+  {
+    "quote": "Debugging is twice as hard as writing the code in the first place.",
+    "author": "Brian Kernighan"
+  },
+  {
+    "quote": "Any fool can write code that a computer can understand. Good programmers write code that humans can understand.",
+    "author": "Martin Fowler"
+  },
+  {
+    "quote": "Clear is better than clever.",
+    "author": "Rob Pike"
+  },
+  {
+    "quote": "Simplicity is hard work. But the payoff is lasting clarity.",
+    "author": "Rich Hickey"
+  },
+  {
+    "quote": "Good design is as little design as possible.",
+    "author": "Dieter Rams"
+  },
+  {
+    "quote": "There are only two hard things in Computer Science: cache invalidation and naming things.",
+    "author": "Phil Karlton"
+  },
+  {
+    "quote": "First, solve the problem. Then, write the code.",
+    "author": "John Johnson"
+  },
+  {
+    "quote": "Code never lies, comments sometimes do.",
+    "author": "Ron Jeffries"
+  },
+  {
+    "quote": "It's not that I'm so smart, it's just that I stay with problems longer.",
+    "author": "Albert Einstein"
+  },
+  {
+    "quote": "Before software can be reusable it first has to be usable.",
+    "author": "Ralph Johnson"
+  },
+  {
+    "quote": "Small disciplines repeated with consistency every day lead to great achievements.",
+    "author": "John C. Maxwell"
+  },
+  {
+    "quote": "You do not rise to the level of your goals. You fall to the level of your systems.",
+    "author": "James Clear"
+  },
+  {
+    "quote": "We are what we repeatedly do. Excellence, then, is not an act, but a habit.",
+    "author": "Aristotle"
+  },
+  {
+    "quote": "Discipline equals freedom.",
+    "author": "Jocko Willink"
+  },
+  {
+    "quote": "Consistency is the DNA of mastery.",
+    "author": "Robin Sharma"
+  },
+  {
+    "quote": "Success is the sum of small efforts, repeated day in and day out.",
+    "author": "Robert Collier"
+  },
+  {
+    "quote": "Do what needs to be done, when it needs to be done, whether you feel like it or not.",
+    "author": "Thomas Huxley"
+  },
+  {
+    "quote": "Don't count the days, make the days count.",
+    "author": "Muhammad Ali"
+  },
+  {
+    "quote": "A year from now you may wish you had started today.",
+    "author": "Karen Lamb"
+  },
+  {
+    "quote": "Discipline is choosing between what you want now and what you want most.",
+    "author": "Abraham Lincoln"
+  },
+  {
+    "quote": "Small daily improvements over time lead to stunning results.",
+    "author": "Robin Sharma"
+  },
+  {
+    "quote": "The secret of your future is hidden in your daily routine.",
+    "author": "Mike Murdock"
+  },
+  {
+    "quote": "Motivation gets you going, but discipline keeps you growing.",
+    "author": "John C. Maxwell"
+  },
+  {
+    "quote": "If you want to master something, teach it to yourself daily through practice.",
+    "author": "Miyamoto Musashi"
+  },
+  {
+    "quote": "Consistency beats intensity every single time.",
+    "author": "Shane Parrish"
+  },
+  {
+    "quote": "You have power over your mind, not outside events. Realize this, and you will find strength.",
+    "author": "Marcus Aurelius"
+  },
+  {
+    "quote": "We suffer more often in imagination than in reality.",
+    "author": "Seneca"
+  },
+  {
+    "quote": "The impediment to action advances action. What stands in the way becomes the way.",
+    "author": "Marcus Aurelius"
+  },
+  {
+    "quote": "Waste no more time arguing what a good man should be. Be one.",
+    "author": "Marcus Aurelius"
+  },
+  {
+    "quote": "He who fears death will never do anything worthy of a man who is alive.",
+    "author": "Seneca"
+  },
+  {
+    "quote": "First say to yourself what you would be; and then do what you have to do.",
+    "author": "Epictetus"
+  },
+  {
+    "quote": "It is not that we have a short time to live, but that we waste a lot of it.",
+    "author": "Seneca"
+  },
+  {
+    "quote": "No man is free who is not master of himself.",
+    "author": "Epictetus"
+  },
+  {
+    "quote": "When you arise in the morning think of what a privilege it is to be alive, to think, to enjoy, to love.",
+    "author": "Marcus Aurelius"
+  },
+  {
+    "quote": "A gem cannot be polished without friction, nor a man perfected without trials.",
+    "author": "Seneca"
+  },
+  {
+    "quote": "Nature does not hurry, yet everything is accomplished.",
+    "author": "Lao Tzu"
+  },
+  {
+    "quote": "In the midst of chaos, there is also opportunity.",
+    "author": "Sun Tzu"
+  },
+  {
+    "quote": "There is nothing outside of yourself that can enable you to get better at anything. Everything is within.",
+    "author": "Miyamoto Musashi"
+  },
+  {
+    "quote": "He who has a why to live can bear almost any how.",
+    "author": "Friedrich Nietzsche"
+  },
+  {
+    "quote": "The soul becomes dyed with the color of its thoughts.",
+    "author": "Marcus Aurelius"
+  },
+  {
+    "quote": "Action is the foundational key to all success.",
+    "author": "Pablo Picasso"
   },
   {
     "quote": "The secret of getting ahead is getting started.",
     "author": "Mark Twain"
   },
   {
-    "quote": "Quality is not an act, it is a habit.",
-    "author": "Aristotle"
-  },
-  {
     "quote": "The best way to predict the future is to create it.",
     "author": "Peter Drucker"
   },
   {
-    "quote": "Deep work is the ability to focus without distraction on a cognitively demanding task.",
+    "quote": "Do something today that your future self will thank you for.",
+    "author": "Sean Patrick Flanery"
+  },
+  {
+    "quote": "Amateurs sit and wait for inspiration, the rest of us just get up and go to work.",
+    "author": "Stephen King"
+  },
+  {
+    "quote": "Start where you are. Use what you have. Do what you can.",
+    "author": "Arthur Ashe"
+  },
+  {
+    "quote": "Doubt is eliminated by action. If you are not doing, then you are doubting.",
+    "author": "Conor McGregor"
+  },
+  {
+    "quote": "Ideas are cheap. Execution is everything.",
+    "author": "Chris Sacca"
+  },
+  {
+    "quote": "Knowing is not enough; we must apply. Willing is not enough; we must do.",
+    "author": "Johann Wolfgang von Goethe"
+  },
+  {
+    "quote": "The scariest moment is always just before you start.",
+    "author": "Stephen King"
+  },
+  {
+    "quote": "Do not wait to strike till the iron is hot; but make it hot by striking.",
+    "author": "William Butler Yeats"
+  },
+  {
+    "quote": "Action expresses priorities.",
+    "author": "Mahatma Gandhi"
+  },
+  {
+    "quote": "Nothing will work unless you do.",
+    "author": "Maya Angelou"
+  },
+  {
+    "quote": "Courage is being scared to death, but saddling up anyway.",
+    "author": "John Wayne"
+  },
+  {
+    "quote": "The only limit to our realization of tomorrow will be our doubts of today.",
+    "author": "Franklin D. Roosevelt"
+  },
+  {
+    "quote": "Quality is not an act, it is a habit.",
+    "author": "Aristotle"
+  },
+  {
+    "quote": "Mastery is not a function of genius or talent, it is a function of time and intense focus.",
+    "author": "Robert Greene"
+  },
+  {
+    "quote": "The expert in anything was once a beginner.",
+    "author": "Helen Hayes"
+  },
+  {
+    "quote": "Continuous improvement is better than delayed perfection.",
+    "author": "Mark Twain"
+  },
+  {
+    "quote": "Live as if you were to die tomorrow. Learn as if you were to live forever.",
+    "author": "Mahatma Gandhi"
+  },
+  {
+    "quote": "An investment in knowledge pays the best interest.",
+    "author": "Benjamin Franklin"
+  },
+  {
+    "quote": "The only way to do great work is to love what you do.",
+    "author": "Steve Jobs"
+  },
+  {
+    "quote": "Details make perfection, and perfection is not a detail.",
+    "author": "Leonardo da Vinci"
+  },
+  {
+    "quote": "Stay hungry, stay foolish.",
+    "author": "Steve Jobs"
+  },
+  {
+    "quote": "Fall in love with the process, and the results will come.",
+    "author": "Eric Thomas"
+  },
+  {
+    "quote": "Skill is the unified force of experience, intellect and passion in their operation.",
+    "author": "John Ruskin"
+  },
+  {
+    "quote": "Everything should be made as simple as possible, but not simpler.",
+    "author": "Albert Einstein"
+  },
+  {
+    "quote": "I have not failed. I have just found 10,000 ways that won't work.",
+    "author": "Thomas Edison"
+  },
+  {
+    "quote": "Genius is one percent inspiration, ninety-nine percent perspiration.",
+    "author": "Thomas Edison"
+  },
+  {
+    "quote": "One hour of focused work beats ten hours of distracted wandering.",
+    "author": "Derek Sivers"
+  },
+  {
+    "quote": "If you chase two rabbits, you will not catch either one.",
+    "author": "Russian Proverb"
+  },
+  {
+    "quote": "Simplicity is the ultimate sophistication.",
+    "author": "Leonardo da Vinci"
+  },
+  {
+    "quote": "The main thing is to keep the main thing the main thing.",
+    "author": "Stephen Covey"
+  },
+  {
+    "quote": "Peace of mind produces right values, right values produce right thoughts.",
+    "author": "Robert M. Pirsig"
+  },
+  {
+    "quote": "What you do today can improve all your tomorrows.",
+    "author": "Ralph Marston"
+  },
+  {
+    "quote": "Clarity precedes success.",
+    "author": "Robin Sharma"
+  },
+  {
+    "quote": "Simplify, simplify, simplify.",
+    "author": "Henry David Thoreau"
+  },
+  {
+    "quote": "Think before you speak. Read before you think.",
+    "author": "Fran Lebowitz"
+  },
+  {
+    "quote": "The most valuable real estate in the world is the six inches between your ears.",
+    "author": "Brian Tracy"
+  },
+  {
+    "quote": "Either you run the day, or the day runs you.",
+    "author": "Jim Rohn"
+  },
+  {
+    "quote": "Time is what we want most, but what we use worst.",
+    "author": "William Penn"
+  },
+  {
+    "quote": "Your time is limited, so don't waste it living someone else's life.",
+    "author": "Steve Jobs"
+  },
+  {
+    "quote": "Beware the barrenness of a busy life.",
+    "author": "Socrates"
+  },
+  {
+    "quote": "To produce at your peak level you need to work for extended periods with full concentration.",
     "author": "Cal Newport"
+  },
+  {
+    "quote": "Focus on being productive instead of busy.",
+    "author": "Tim Ferriss"
+  },
+  {
+    "quote": "It does not matter how slowly you go as long as you do not stop.",
+    "author": "Confucius"
+  },
+  {
+    "quote": "Success is stumbling from failure to failure with no loss of enthusiasm.",
+    "author": "Winston Churchill"
+  },
+  {
+    "quote": "Hard choices, easy life. Easy choices, hard life.",
+    "author": "Jerzy Gregorek"
+  },
+  {
+    "quote": "The harder the conflict, the more glorious the triumph.",
+    "author": "Thomas Paine"
+  },
+  {
+    "quote": "Strength does not come from winning. Your struggles develop your strengths.",
+    "author": "Arnold Schwarzenegger"
+  },
+  {
+    "quote": "Turn your wounds into wisdom.",
+    "author": "Oprah Winfrey"
+  },
+  {
+    "quote": "Difficulties strengthen the mind, as labor does the body.",
+    "author": "Seneca"
+  },
+  {
+    "quote": "Fall seven times and stand up eight.",
+    "author": "Japanese Proverb"
+  },
+  {
+    "quote": "A smooth sea never made a skilled sailor.",
+    "author": "Franklin D. Roosevelt"
+  },
+  {
+    "quote": "The man who moves a mountain begins by carrying away small stones.",
+    "author": "Confucius"
+  },
+  {
+    "quote": "Don't wish it were easier, wish you were better.",
+    "author": "Jim Rohn"
+  },
+  {
+    "quote": "Tough times never last, but tough people do.",
+    "author": "Robert H. Schuller"
+  },
+  {
+    "quote": "Believe you can and you're halfway there.",
+    "author": "Theodore Roosevelt"
+  },
+  {
+    "quote": "In the middle of difficulty lies opportunity.",
+    "author": "Albert Einstein"
+  },
+  {
+    "quote": "Great things are done by a series of small things brought together.",
+    "author": "Vincent van Gogh"
+  },
+  {
+    "quote": "A fit body, a calm mind, a house full of love. These things cannot be bought—they must be earned.",
+    "author": "Naval Ravikant"
+  },
+  {
+    "quote": "The modern world rewards those who can sit in a room quietly and think.",
+    "author": "Blaise Pascal"
+  },
+  {
+    "quote": "Be regular and orderly in your life, so that you may be violent and original in your work.",
+    "author": "Gustave Flaubert"
+  },
+  {
+    "quote": "The greatest weapon against stress is our ability to choose one thought over another.",
+    "author": "William James"
+  },
+  {
+    "quote": "Make each day your masterpiece.",
+    "author": "John Wooden"
+  },
+  {
+    "quote": "You don't have to be great to start, but you have to start to be great.",
+    "author": "Zig Ziglar"
+  },
+  {
+    "quote": "Yesterday is history, tomorrow is a mystery, today is a gift of God, which is why we call it the present.",
+    "author": "Bill Keane"
+  },
+  {
+    "quote": "The only person you are destined to become is the person you decide to be.",
+    "author": "Ralph Waldo Emerson"
+  },
+  {
+    "quote": "Patience, persistence and perspiration make an unbeatable combination for success.",
+    "author": "Napoleon Hill"
+  },
+  {
+    "quote": "What we fear doing most is usually what we most need to do.",
+    "author": "Tim Ferriss"
+  },
+  {
+    "quote": "The mind is everything. What you think you become.",
+    "author": "Buddha"
+  },
+  {
+    "quote": "Nothing in the world can take the place of persistence.",
+    "author": "Calvin Coolidge"
+  },
+  {
+    "quote": "Focus is saying no to the hundred other good ideas that there are.",
+    "author": "Steve Jobs"
+  },
+  {
+    "quote": "Work hard in silence, let your success be your noise.",
+    "author": "Frank Ocean"
+  },
+  {
+    "quote": "Life is 10% what happens to you and 90% how you react to it.",
+    "author": "Charles R. Swindoll"
   }
 ]
