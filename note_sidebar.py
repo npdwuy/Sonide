@@ -39,7 +39,6 @@ user32 = ctypes.WinDLL("user32", use_last_error=True)
 shell32 = ctypes.WinDLL("shell32", use_last_error=True)
 kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
 dwmapi = ctypes.WinDLL("dwmapi", use_last_error=True)
-gdi32 = ctypes.WinDLL("gdi32", use_last_error=True)
 imm32 = ctypes.WinDLL("imm32", use_last_error=True)
 
 HWND = wintypes.HWND
@@ -140,13 +139,8 @@ user32.EnumDisplayMonitors.argtypes = [ctypes.c_void_p, ctypes.c_void_p,
 user32.EnumDisplayMonitors.restype = wintypes.BOOL
 user32.GetMonitorInfoW.argtypes = [ctypes.c_void_p, ctypes.POINTER(MONITORINFO)]
 user32.GetMonitorInfoW.restype = wintypes.BOOL
-
-gdi32.CreateRectRgn.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
-gdi32.CreateRectRgn.restype = wintypes.HANDLE
-gdi32.CombineRgn.argtypes = [wintypes.HANDLE, wintypes.HANDLE, wintypes.HANDLE, ctypes.c_int]
-gdi32.CombineRgn.restype = ctypes.c_int
-gdi32.DeleteObject.argtypes = [wintypes.HANDLE]
-gdi32.DeleteObject.restype = wintypes.BOOL
+user32.GetWindowThreadProcessId.argtypes = [HWND, ctypes.POINTER(wintypes.DWORD)]
+user32.GetWindowThreadProcessId.restype = wintypes.DWORD
 
 GetWindowLongPtrW = getattr(user32, "GetWindowLongPtrW", user32.GetWindowLongW)
 GetWindowLongPtrW.argtypes = [HWND, ctypes.c_int]
@@ -248,25 +242,35 @@ def enable_dpi_awareness():
             pass
 
 
-def apply_complex_region_anti_occlusion(hwnd, w, h):
-    """
-    Tao GDI COMPLEXREGION cho Sidebar bang cach cat 2 diem 1x1 pixel o mep phai.
-    Trong ma nguon Chromium (native_window_occlusion_tracker_win.cc):
-        if (GetWindowRgn(hwnd, rgn) == COMPLEXREGION) return false;
-    Nho vay, Chromium va Windows DWM KHONG BAO GIO tinh Sidebar la vat che khuat (occluder),
-    giup tat ca cac cua so ghim ben duoi Sidebar render 60fps vinh vien khong bao gio dung!
-    """
-    if w < 10 or h < 10:
-        return
-    r_full = gdi32.CreateRectRgn(0, 0, w, h)
-    r_cut1 = gdi32.CreateRectRgn(w - 1, 0, w, 1)
-    r_cut2 = gdi32.CreateRectRgn(w - 1, h - 1, w, h)
-    gdi32.CombineRgn(r_full, r_full, r_cut1, RGN_DIFF)
-    gdi32.CombineRgn(r_full, r_full, r_cut2, RGN_DIFF)
-    gdi32.DeleteObject(r_cut1)
-    gdi32.DeleteObject(r_cut2)
-    # SetWindowRgn chiem quyen so huu r_full (khong DeleteObject r_full)
-    user32.SetWindowRgn(hwnd, r_full, True)
+def atomic_write_text(path, text):
+    """Write text atomically via temp file + fsync + os.replace to prevent 0-byte truncation on crash."""
+    tmp_path = f"{path}.tmp.{os.getpid()}"
+    try:
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            f.write(text)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_path, path)
+    finally:
+        if os.path.exists(tmp_path):
+            try:
+                os.remove(tmp_path)
+            except Exception:
+                pass
+
+
+def resolve_safe_note_path(raw_path):
+    """Prevent path traversal outside workspace directory."""
+    default_p = os.path.abspath(os.path.join(HERE, "notes.md"))
+    if not raw_path or not isinstance(raw_path, str):
+        return default_p
+    try:
+        cand = os.path.abspath(os.path.join(HERE, raw_path))
+        if os.path.commonpath([HERE, cand]) == os.path.abspath(HERE) and cand.lower().endswith(".md"):
+            return cand
+    except Exception:
+        pass
+    return default_p
 
 
 def stop_running_instance():
@@ -286,6 +290,23 @@ def stop_running_instance():
     if old_pid == os.getpid():
         return False
 
+    # Verify old_hwnd still exists and belongs to old_pid to prevent PID-reuse termination of unrelated apps
+    if not old_hwnd or not user32.IsWindow(old_hwnd):
+        try:
+            os.remove(PID_FILE)
+        except Exception:
+            pass
+        return False
+
+    win_pid = wintypes.DWORD(0)
+    user32.GetWindowThreadProcessId(old_hwnd, ctypes.byref(win_pid))
+    if win_pid.value != old_pid:
+        try:
+            os.remove(PID_FILE)
+        except Exception:
+            pass
+        return False
+
     PROCESS_TERMINATE = 0x0001
     SYNCHRONIZE = 0x00100000
     h_proc = kernel32.OpenProcess(PROCESS_TERMINATE | SYNCHRONIZE, False, old_pid)
@@ -298,12 +319,10 @@ def stop_running_instance():
 
     try:
         try:
-            with open(PID_FILE, "w", encoding="utf-8") as f:
-                f.write(f"STOP:{old_pid}")
+            atomic_write_text(PID_FILE, f"STOP:{old_pid}")
         except Exception:
             pass
-        if old_hwnd and user32.IsWindow(old_hwnd):
-            user32.PostMessageW(old_hwnd, WM_CLOSE, 0, 0)
+        user32.PostMessageW(old_hwnd, WM_CLOSE, 0, 0)
         res = kernel32.WaitForSingleObject(h_proc, 2000)
         if res != 0:
             kernel32.TerminateProcess(h_proc, 0)
@@ -345,8 +364,7 @@ def acquire_single_instance(takeover=True):
 
 def write_pid_file(hwnd_val=0):
     try:
-        with open(PID_FILE, "w", encoding="utf-8") as f:
-            f.write(f"{os.getpid()}:{int(hwnd_val or 0)}")
+        atomic_write_text(PID_FILE, f"{os.getpid()}:{int(hwnd_val or 0)}")
     except Exception:
         pass
 
@@ -355,7 +373,9 @@ def load_cfg():
     cfg = dict(DEFAULT_CFG)
     try:
         with open(CFG_PATH, "r", encoding="utf-8") as f:
-            cfg.update(json.load(f))
+            loaded = json.load(f)
+            if isinstance(loaded, dict):
+                cfg.update(loaded)
     except FileNotFoundError:
         save_cfg(cfg)
     except Exception:
@@ -365,8 +385,7 @@ def load_cfg():
 
 def save_cfg(cfg):
     try:
-        with open(CFG_PATH, "w", encoding="utf-8") as f:
-            json.dump(cfg, f, indent=2, ensure_ascii=False)
+        atomic_write_text(CFG_PATH, json.dumps(cfg, indent=2, ensure_ascii=False))
     except Exception:
         pass
 
@@ -792,7 +811,8 @@ class NoteSidebarApp:
         self.header_height = int(cfg.get("header_height", 32))
         self.base_font_size = 11
         self.font_size = max(8, min(24, int(cfg.get("font_size", 11))))
-        self.file_path = os.path.join(HERE, cfg.get("file_path", "notes.md"))
+        self.file_path = resolve_safe_note_path(cfg.get("file_path", "notes.md"))
+        self._last_checked_fg = None
 
         self.registered = False
         self.collapsed = False
@@ -1387,6 +1407,10 @@ class NoteSidebarApp:
                     if self._is_valid_external_window(fg):
                         self._ensure_anti_occlusion_on_window(fg)
 
+                    # Prune closed HWNDs from _layered_hwnds set
+                    if hasattr(self, "_layered_hwnds") and self._layered_hwnds:
+                        self._layered_hwnds = {h for h in self._layered_hwnds if user32.IsWindow(h)}
+
                     for h, info in list(self.live_windows.items()):
                         if not user32.IsWindow(h):
                             self.remove_live_window(h, restore=False)
@@ -1402,7 +1426,9 @@ class NoteSidebarApp:
                             target_hwnd, None, None, RDW_INVALIDATE | RDW_FRAME
                         )
 
-                self._refresh_dwm_thumbnails()
+                    self._refresh_dwm_thumbnails(query_source=True)
+                else:
+                    self._refresh_dwm_thumbnails(query_source=False)
         except Exception:
             pass
         # 42ms = ~24fps
@@ -1562,15 +1588,17 @@ class NoteSidebarApp:
                 self._z_was_down = False
 
             fg = user32.GetForegroundWindow()
-            if self._is_valid_external_window(fg):
-                self.last_external_hwnd = fg
-                if self.live_windows:
-                    self._ensure_anti_occlusion_on_window(fg)
-                    for h_p, p_info in self.live_windows.items():
-                        new_front = (h_p == fg) and not bool(user32.IsIconic(h_p))
-                        if p_info.get("in_front") != new_front:
-                            p_info["in_front"] = new_front
-                            self._update_card_visuals(h_p)
+            if fg != self._last_checked_fg:
+                self._last_checked_fg = fg
+                if self._is_valid_external_window(fg):
+                    self.last_external_hwnd = fg
+                    if self.live_windows:
+                        self._ensure_anti_occlusion_on_window(fg)
+                        for h_p, p_info in self.live_windows.items():
+                            new_front = (h_p == fg) and not bool(user32.IsIconic(h_p))
+                            if p_info.get("in_front") != new_front:
+                                p_info["in_front"] = new_front
+                                self._update_card_visuals(h_p)
 
             for h_pinned, p_info in list(self.live_windows.items()):
                 if user32.IsWindow(h_pinned) and user32.IsIconic(h_pinned) and p_info.get("in_front", False):
@@ -1786,7 +1814,7 @@ class NoteSidebarApp:
         self._refresh_dwm_thumbnails(force=True)
         return "break"
 
-    def _refresh_dwm_thumbnails(self, force=False):
+    def _refresh_dwm_thumbnails(self, force=False, query_source=False):
         dead = []
         root_x = self.root.winfo_rootx()
         root_y = self.root.winfo_rooty()
@@ -1816,15 +1844,22 @@ class NoteSidebarApp:
             if pw < 10 or ph < 10:
                 continue
 
-            src_size = SIZE()
-            if (
-                dwmapi.DwmQueryThumbnailSourceSize(info["hthumb"], ctypes.byref(src_size)) == 0
-                and src_size.cx > 0
-                and src_size.cy > 0
-            ):
-                scale = min(pw / src_size.cx, ph / src_size.cy)
-                tw = int(src_size.cx * scale)
-                th = int(src_size.cy * scale)
+            cached_src = info.get("src_size")
+            if force or query_source or not cached_src:
+                src_size = SIZE()
+                if (
+                    dwmapi.DwmQueryThumbnailSourceSize(info["hthumb"], ctypes.byref(src_size)) == 0
+                    and src_size.cx > 0
+                    and src_size.cy > 0
+                ):
+                    cached_src = (src_size.cx, src_size.cy)
+                    info["src_size"] = cached_src
+
+            if cached_src:
+                scx, scy = cached_src
+                scale = min(pw / scx, ph / scy)
+                tw = int(scx * scale)
+                th = int(scy * scale)
                 ox = px + (pw - tw) // 2
                 oy = py + (ph - th) // 2
                 dest_tuple = (ox, oy, ox + tw, oy + th)
@@ -2184,14 +2219,8 @@ class NoteSidebarApp:
         self.save_notes(instant=True)
 
     def _update_task_stats(self):
-        num_lines = int(self.editor.index("end-1c").split(".")[0])
-        todo_c, done_c = 0, 0
-        for ln in range(1, num_lines + 1):
-            st = MarkdownEngine.line_checkbox_state(self.editor, ln)
-            if st == "todo":
-                todo_c += 1
-            elif st == "done":
-                done_c += 1
+        todo_c = len(self.editor.tag_ranges("check_todo_marker")) // 2
+        done_c = len(self.editor.tag_ranges("check_done_marker")) // 2
         total = todo_c + done_c
         self.task_stat_lbl.config(
             text=f"{done_c}/{total}" if total > 0 else "",
@@ -2583,9 +2612,16 @@ class NoteSidebarApp:
 
     def load_notes(self):
         content = ""
+        bak_path = f"{self.file_path}.bak"
         if os.path.isfile(self.file_path):
             try:
                 with open(self.file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+            except Exception:
+                content = ""
+        if not content.strip() and os.path.isfile(bak_path):
+            try:
+                with open(bak_path, "r", encoding="utf-8") as f:
                     content = f.read()
             except Exception:
                 content = ""
@@ -2608,8 +2644,12 @@ class NoteSidebarApp:
 
         try:
             markdown_data = MarkdownEngine.dump_from_text(self.editor).replace("\u200b", "")
-            with open(self.file_path, "w", encoding="utf-8") as f:
-                f.write(markdown_data)
+            atomic_write_text(self.file_path, markdown_data)
+            if markdown_data.strip():
+                try:
+                    atomic_write_text(f"{self.file_path}.bak", markdown_data)
+                except Exception:
+                    pass
             self.status_lbl.config(text=" · Saved", fg="#52525b")
         except Exception:
             self.status_lbl.config(text=" · Save Error", fg=self.RED)
